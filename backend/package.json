@@ -23,6 +23,7 @@
     "tsc:watch": "tsc --watch"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "graphql-tag": "^2.10.3",
     "graphql-yoga": "^1.18.3",
     "source-map-support": "^0.5.16"
