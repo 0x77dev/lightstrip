@@ -19,12 +19,38 @@
 
     <v-content>
       <router-view />
+      <v-bottom-sheet v-model="isNotEverythingGoodWithConnecton">
+        <v-sheet class="text-center" height="125px">
+          <br />
+          <h1>😞</h1>
+          <div class="py-3">Something is not ok with connection please try again later.</div>
+        </v-sheet>
+      </v-bottom-sheet>
     </v-content>
   </v-app>
 </template>
 
 <script>
+import gql from "graphql-tag";
+
 export default {
-  name: "App"
+  name: "App",
+  computed: {
+    isNotEverythingGoodWithConnecton: {
+      get() {
+        return this.alive !== true;
+      },
+      set(value) {
+        if (!value) location.reload();
+      }
+    }
+  },
+  apollo: {
+    alive: gql`
+      query {
+        alive
+      }
+    `
+  }
 };
 </script>

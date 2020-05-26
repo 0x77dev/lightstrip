@@ -5,16 +5,16 @@ import cors from "cors";
 
 const typeDefs = gql`
   type Query {
-    hello(name: String): String!
+    alive: Boolean!
   }
 `
 
 const resolvers = {
   Query: {
-    hello: (_: void, { name }: { name: string }) => `Hello ${name || 'World'}`,
+    alive: () => true,
   },
 }
 
 const server = new GraphQLServer({ typeDefs, resolvers });
 server.express.use(cors());
-server.start(() => console.log('Server is running on http://localhost:4000'));
+server.start({ subscriptions: '/' }, () => console.info('Backend is running on http://localhost:4000'));
