@@ -36,7 +36,7 @@ const resolvers = {
     reset: () => { lightStrip.reset(); return true; }
   },
   Subscription: {
-    state: (_: void, __: void, { pubsub }: { pubsub: PubSub }) => {
+    state: () => {
       pubsub.publish("state", lightStrip.state);
       return pubsub.asyncIterator("state");
     },
