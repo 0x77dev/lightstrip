@@ -6,38 +6,47 @@ export class LightStrip {
     public rainbowRenderLoop?: NodeJS.Timeout;
     public pixelData: Uint32Array;
     public state: "rainbow" | "static_all" | "off";
+    public onStateChanged?: Function;
 
-    constructor(leds: number) {
+    constructor(leds: number, onStateChanged?: Function) {
         this.leds = leds;
         this.state = "off";
         this.ws281x = ws281x;
         this.ws281x.init(leds);
         this.pixelData = new Uint32Array(this.leds);
+        this.onStateChanged = onStateChanged;
     }
 
     public startRainbow() {
         let offset = 0;
         this.rainbowRenderLoop = setInterval(() => {
-            this.state = "rainbow";
+            this.setState("rainbow");
             for (var i = 0; i < this.leds; i++) {
                 this.pixelData[i] = this.colorwheel((offset + i) % 256);
             }
 
             offset = (offset + 1) % 256;
-            ws281x.render(this.pixelData);
+            this.ws281x.render(this.pixelData);
         }, 1000 / 30);
 
         return this.rainbowRenderLoop;
     }
 
+    private setState(state: "rainbow" | "static_all" | "off") {
+        if (this.onStateChanged !== undefined) this.onStateChanged(state);
+        this.state = state;
+        return state;
+    }
+
     public stopRainbow() {
         this.reset();
-        this.state = "off";
+        this.setState("off");
         // @ts-ignore
         clearInterval(this.rainbowRenderLoop);
     }
 
     public reset() {
+        this.setState("off");
         this.ws281x.reset();
     }
 

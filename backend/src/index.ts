@@ -1,10 +1,10 @@
 import "source-map-support/register";
-import { GraphQLServer } from 'graphql-yoga';
+import { GraphQLServer, PubSub } from 'graphql-yoga';
 import gql from "graphql-tag";
 import cors from "cors";
 import LightStrip from "./LightStrip";
-const lightStrip = new LightStrip(240);
-
+const pubsub = new PubSub();
+const lightStrip = new LightStrip(240, (state: string) => pubsub.publish("state", state));
 // import path from "path";
 // import express from "express";
 
@@ -16,8 +16,14 @@ const typeDefs = gql`
 
   type Mutation {
     startRainbow: Boolean!
+    stopRainbow: Boolean!
+    reset: Boolean!
   }
-`
+
+  type Subscription {
+    state: String!
+  }
+`;
 
 const resolvers = {
   Query: {
@@ -25,7 +31,15 @@ const resolvers = {
     state: () => lightStrip.state
   },
   Mutation: {
-    startRainbow: () => { lightStrip.startRainbow(); return true; }
+    startRainbow: () => { lightStrip.startRainbow(); return true; },
+    stopRainbow: () => { lightStrip.stopRainbow(); return true; },
+    reset: () => { lightStrip.reset(); return true; }
+  },
+  Subscription: {
+    state: (_: void, __: void, { pubsub }: { pubsub: PubSub }) => {
+      pubsub.publish("state", lightStrip.state);
+      return pubsub.asyncIterator("state");
+    },
   }
 }
 
